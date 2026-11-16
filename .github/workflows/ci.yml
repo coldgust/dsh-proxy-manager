@@ -1,0 +1,71 @@
+# Every push and pull request: type-check, prove the committed lib/ artifacts
+# match the sources, run the tests, then smoke-test the packed plugin.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The pnpm version comes from package.json "packageManager"; do not pass
+      # `version` here or the action fails with ERR_PNPM_BAD_PM_VERSION.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check
+        run: pnpm typecheck
+
+      - name: Verify lib/ matches the sources
+        run: pnpm build:check
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Pack plugin
+        run: |
+          mkdir -p /tmp/pack-smoke-tgz
+          pnpm pack --pack-destination /tmp/pack-smoke-tgz
+
+      - name: Verify packed files match package.json "files"
+        run: |
+          mkdir -p /tmp/pack-smoke && tar -xzf /tmp/pack-smoke-tgz/*.tgz -C /tmp/pack-smoke
+          missing=0
+          for f in lib/loader.js lib/host.js lib/index.js lib/client.js \
+                   locale/en.json locale/zh.json \
+                   cordis.patch.yml icon.svg README.md README.zh.md \
+                   docs/development-notes.md; do
+            if [ ! -f "/tmp/pack-smoke/package/$f" ]; then
+              echo "MISSING from package: $f"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::package.json 'files' is missing files the plugin needs — fix the whitelist"
+            exit 1
+          fi
+          echo "all plugin files present in package"
+
+      - name: Smoke-test the packed bundle
+        run: |
+          node --input-type=module -e "
+            const entry = await import('/tmp/pack-smoke/package/lib/loader.js');
+            if (typeof entry.apply !== 'function') throw new Error('loader apply export missing');
+            if (!Array.isArray(entry.inject) || !entry.inject.includes('webServer')) throw new Error('loader inject is wrong');
+            const host = await import('/tmp/pack-smoke/package/lib/index.js');
+            if (typeof host.apply !== 'function') throw new Error('host apply export missing');
+            if (host.builtinAdapters.length < 13) throw new Error('adapters are missing');
+            console.log('packed bundle loads:', host.builtinAdapters.length, 'adapters');
+          "

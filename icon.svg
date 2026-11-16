@@ -1,0 +1,17 @@
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Proxy manager: traffic forwarded through one hop. -->
+  <circle cx="18" cy="18" r="9.5" stroke="url(#proxy-ring)" stroke-width="2.6" />
+  <path d="M12 24L24 12" stroke="url(#proxy-route)" stroke-width="2.6" stroke-linecap="round" />
+  <path d="M19.6 11.2H24.8V16.4" stroke="url(#proxy-route)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="12" cy="24" r="2.2" fill="#3D6FD6" />
+  <defs>
+    <linearGradient id="proxy-ring" x1="8.5" y1="8.5" x2="27.5" y2="27.5" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#69B9FF" />
+      <stop offset="1" stop-color="#324DE2" />
+    </linearGradient>
+    <linearGradient id="proxy-route" x1="12" y1="24" x2="24.8" y2="11.2" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#37A6B1" />
+      <stop offset="1" stop-color="#6AECB6" />
+    </linearGradient>
+  </defs>
+</svg>

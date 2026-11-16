@@ -1,0 +1,107 @@
+# Publish dsh-proxy-manager to npm when a GitHub Release is published.
+# Beta releases go to the `next` dist-tag so `latest` always means stable.
+#
+# Authentication: this workflow uses the `NPM_TOKEN` repository secret (an npm
+# automation token with publish rights). The project pins pnpm 12, which also
+# supports npm trusted publishing (OIDC), so the token can be dropped later:
+#   - grant the job `id-token: write` and remove NODE_AUTH_TOKEN;
+#   - on npmjs.com: Package > Settings > Trusted publishing > GitHub Actions,
+#     with organization `coldgust`, repository `dsh-proxy-manager`, workflow
+#     filename `npm-publish.yml`.
+#
+# One-time setup for the token path:
+#   - npmjs.com → Access Tokens → Granular/Automation token with publish rights;
+#   - GitHub → Settings → Secrets and variables → Actions → `NPM_TOKEN`;
+#   - package.json must not be `private` (the guard below says so).
+
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+  # Manual escape hatch: publish the current commit under a chosen dist-tag.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Dist-tag to publish under
+        type: choice
+        default: next
+        options: [next, latest]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Publish exactly the tagged commit, not whatever the branch moved to.
+          ref: ${{ github.event.release.tag_name || github.ref }}
+
+      # pnpm version is taken from package.json "packageManager"; passing
+      # `version` here too would trip ERR_PNPM_BAD_PM_VERSION.
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Install build dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the committed artifacts
+        run: pnpm build
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Check the package is publishable
+        run: |
+          private="$(node -p "require('./package.json').private === true ? 'yes' : 'no'")"
+          if [ "$private" = "yes" ]; then
+            echo "::error::package.json is \"private\": true — set it to false before publishing"
+            exit 1
+          fi
+
+      - name: Check package.json version matches the release tag
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          tag="${{ github.event.release.tag_name }}"
+          if [ -n "$tag" ]; then
+            tag="${tag#v}"
+            if [ "$version" != "$tag" ]; then
+              echo "::error::package.json says $version but the release tag is $tag — bump the version (or fix the tag) and release again"
+              exit 1
+            fi
+          fi
+          echo "publishing version $version"
+
+      - name: Resolve dist-tag
+        id: dist
+        run: |
+          tag="${{ inputs.tag }}"
+          if [ -z "$tag" ]; then
+            if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+              tag=next
+            else
+              tag=latest
+            fi
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "will publish with --tag $tag"
+
+      # --no-git-checks: the release checkout is a detached tag, and the tarball
+      # already passed install/build/test/version gates above.
+      - name: Publish to npm
+        run: pnpm publish --tag "${{ steps.dist.outputs.tag }}" --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

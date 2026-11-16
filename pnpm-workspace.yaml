@@ -1,0 +1,7 @@
+# Workspace settings for this repository (read by pnpm 10+; the project pins
+# pnpm 12 in package.json "packageManager").
+#
+# esbuild ships a native binary through its install script, and development
+# needs it, so that one build is explicitly allowed.
+allowBuilds:
+  esbuild: true

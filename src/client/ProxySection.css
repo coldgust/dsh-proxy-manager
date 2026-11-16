@@ -1,0 +1,385 @@
+/* Proxy manager page: one settings block, one toolbar, then the adapter list.
+   Every colour and border comes from a theme alias so light and dark both work. */
+
+.dshproxy-root {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 760px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.dshproxy-heading {
+  margin: 0;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}
+
+.dshproxy-intro {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.dshproxy-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 10px;
+  background: var(--dsw-alias-bg-layer-1);
+}
+
+.dshproxy-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dshproxy-label {
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.dshproxy-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 10px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-base);
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.dshproxy-input:focus-visible {
+  outline: var(--dsw-focus-ring-width, 2px) solid var(--dsw-alias-state-business-primary, var(--dsw-alias-brand-primary));
+  outline-offset: 1px;
+}
+
+.dshproxy-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+}
+
+.dshproxy-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dshproxy-suggested {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.dshproxy-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dshproxy-spacer {
+  flex: 1;
+  min-width: 0;
+}
+
+.dshproxy-summary {
+  font-size: 12px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.dshproxy-button {
+  padding: 5px 12px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.dshproxy-button:hover:not(:disabled) {
+  background: var(--dsw-alias-bg-layer-2);
+}
+
+.dshproxy-button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.dshproxy-primary {
+  border-color: transparent;
+  background: var(--dsw-alias-brand-primary);
+  color: var(--dsw-alias-bg-base);
+  font-weight: 600;
+}
+
+.dshproxy-primary:hover:not(:disabled) {
+  background: var(--dsw-alias-brand-primary);
+  filter: brightness(1.06);
+}
+
+.dshproxy-ghost {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--dsw-alias-state-business-primary, var(--dsw-alias-brand-primary));
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dshproxy-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dshproxy-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 2px;
+  border-top: 0.5px solid var(--dsw-alias-border-l2);
+}
+
+.dshproxy-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  flex: 1;
+}
+
+.dshproxy-row-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dshproxy-name {
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.dshproxy-tag {
+  padding: 0 6px;
+  border-radius: 6px;
+  background: var(--dsw-alias-bg-layer-2);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 11px;
+  line-height: 17px;
+}
+
+.dshproxy-tag-warn {
+  color: var(--dsw-alias-state-warn-primary);
+}
+
+.dshproxy-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  font: inherit;
+  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  line-height: 18px;
+  text-align: left;
+  word-break: break-all;
+}
+
+.dshproxy-status[data-on='true'] {
+  color: var(--dsw-alias-state-success-primary);
+}
+
+.dshproxy-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.dshproxy-path-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.dshproxy-path {
+  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  color: var(--dsw-alias-label-secondary);
+  word-break: break-all;
+}
+
+.dshproxy-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+}
+
+.dshproxy-error {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.dshproxy-alert {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-2);
+  color: var(--dsw-alias-state-error-primary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.dshproxy-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.dshproxy-switch {
+  position: relative;
+  flex: none;
+  width: 38px;
+  height: 22px;
+  padding: 0;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 11px;
+  background: var(--dsw-alias-bg-layer-2);
+  cursor: pointer;
+}
+
+.dshproxy-switch[data-on='true'] {
+  border-color: transparent;
+  background: var(--dsw-alias-state-success-primary);
+}
+
+.dshproxy-switch:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.dshproxy-switch:focus-visible {
+  outline: var(--dsw-focus-ring-width, 2px) solid var(--dsw-alias-state-business-primary, var(--dsw-alias-brand-primary));
+  outline-offset: 2px;
+}
+
+.dshproxy-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--dsw-alias-bg-base);
+  transition: transform 120ms ease;
+}
+
+.dshproxy-switch[data-on='true'] .dshproxy-thumb {
+  transform: translateX(16px);
+}
+
+.dshproxy-add-block {
+  border-top: 0.5px solid var(--dsw-alias-border-l2);
+  padding-top: 12px;
+}
+
+.dshproxy-add-summary {
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dshproxy-add-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.dshproxy-add-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+}
+
+.dshproxy-select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 10px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-base);
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.dshproxy-footer {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+}
+
+.dshproxy-loading {
+  margin: 0;
+  font-size: 13px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.dshproxy-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dshproxy-filters > input {
+  flex: 1;
+  min-width: 0;
+}
+
+.dshproxy-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 4px;
+}

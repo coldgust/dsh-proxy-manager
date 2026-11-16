@@ -1,0 +1,10 @@
+# Bundle layer for dsh-proxy-manager: one Host row owns the proxy registry,
+# the Client-callable RPC channel and the `proxy_manager` agent tool.
+#
+# The row must name the package root: dsh-client-modules derives the browser
+# half from the manifest of the package that owns the row, and it derives no
+# browser half for a subpath specifier (see README > Known limitations).
+- insert:
+    - id: proxy-manager
+      name: dsh-proxy-manager
+      config: {}

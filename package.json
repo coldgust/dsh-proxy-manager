@@ -1,0 +1,45 @@
+{
+  "name": "dsh-proxy-manager",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Set, inspect and clear the proxy configuration of common developer tools (git, npm, dsh, docker, ...) from one DSH settings page.",
+  "exports": {
+    ".": "./lib/loader.js",
+    "./host": "./lib/loader.js",
+    "./client": "./lib/client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "README.zh.md",
+    "docs"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/",
+    "check": "pnpm typecheck && pnpm build && pnpm test",
+    "build:check": "node scripts/build.mjs && git diff --exit-code -- lib"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.0"
+  },
+  "packageManager": "pnpm@12.18.0+sha512.9d7882d5dc82147ecfc4e062aa34834e0ad0296710a1837a1115ae012127d36b7109e321ac1598a1dd0a65597681b1e99917e12ed0d749eae91187943363beb3"
+}
