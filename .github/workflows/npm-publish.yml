@@ -1,25 +1,8 @@
-# Publish dsh-proxy-manager to npm when a GitHub Release is published.
-# Beta releases go to the `next` dist-tag so `latest` always means stable.
-#
-# Authentication: this workflow uses the `NPM_TOKEN` repository secret (an npm
-# automation token with publish rights). The project pins pnpm 12, which also
-# supports npm trusted publishing (OIDC), so the token can be dropped later:
-#   - grant the job `id-token: write` and remove NODE_AUTH_TOKEN;
-#   - on npmjs.com: Package > Settings > Trusted publishing > GitHub Actions,
-#     with organization `coldgust`, repository `dsh-proxy-manager`, workflow
-#     filename `npm-publish.yml`.
-#
-# One-time setup for the token path:
-#   - npmjs.com → Access Tokens → Granular/Automation token with publish rights;
-#   - GitHub → Settings → Secrets and variables → Actions → `NPM_TOKEN`;
-#   - package.json must not be `private` (the guard below says so).
-
 name: Publish to npm
 
 on:
   release:
     types: [published]
-  # Manual escape hatch: publish the current commit under a chosen dist-tag.
   workflow_dispatch:
     inputs:
       tag:
@@ -30,6 +13,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: npm-publish
@@ -50,10 +34,11 @@ jobs:
         with:
           run_install: false
 
+      # No `registry-url`: it would write an .npmrc with an unresolved
+      # ${NODE_AUTH_TOKEN} placeholder, which breaks trusted publishing.
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org
 
       - name: Install build dependencies
         run: pnpm install --frozen-lockfile
@@ -99,9 +84,23 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "will publish with --tag $tag"
 
+      # Fail fast with a readable message when the OIDC permission is missing,
+      # instead of letting npm answer a bare `404 Not Found` for an anonymous
+      # publish (that is what an unauthenticated PUT looks like).
+      - name: Check trusted publishing prerequisites
+        run: |
+          if [ -z "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            echo "::error::no OIDC token endpoint — the workflow needs 'permissions: id-token: write'"
+            exit 1
+          fi
+          if [ -f .npmrc ] && grep -q '_authToken' .npmrc; then
+            echo "::error::.npmrc contains an _authToken placeholder; remove it so OIDC is used"
+            exit 1
+          fi
+          echo "OIDC trusted publishing is available"
+
       # --no-git-checks: the release checkout is a detached tag, and the tarball
       # already passed install/build/test/version gates above.
+      # --provenance: publish a signed build attestation alongside the tarball.
       - name: Publish to npm
-        run: pnpm publish --tag "${{ steps.dist.outputs.tag }}" --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm publish --tag "${{ steps.dist.outputs.tag }}" --no-git-checks --provenance
