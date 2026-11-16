@@ -4,6 +4,8 @@ English | [中文](README.zh.md)
 
 Set, inspect and clear the proxy configuration of the developer tools on this machine from one page in **Settings → Proxy**: 13 tools are built in, your own can be added, and one click enables or clears the proxy for all of them.
 
+![The Proxy page in Settings: the proxy address and bypass list at the top, then the searchable list of tools with their state, address and configuration file](docs/proxy-settings.webp)
+
 ## What it does
 
 - **One list, every tool.** Each row shows whether the proxy is on, the address it uses, and the exact configuration file that holds it.
@@ -119,3 +121,7 @@ pnpm test
 ```
 
 `pnpm build` writes the committed `lib/` artifacts; reload the plugin row (or restart once after installing) to load them.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

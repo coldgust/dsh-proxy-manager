@@ -3,6 +3,16 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Set, inspect and clear the proxy configuration of common developer tools (git, npm, dsh, docker, ...) from one DSH settings page.",
+  "license": "MIT",
+  "author": "coldgust",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coldgust/dsh-proxy-manager.git"
+  },
+  "homepage": "https://github.com/coldgust/dsh-proxy-manager#readme",
+  "bugs": {
+    "url": "https://github.com/coldgust/dsh-proxy-manager/issues"
+  },
   "exports": {
     ".": "./lib/loader.js",
     "./host": "./lib/loader.js",
@@ -31,7 +41,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/",
+    "test": "node --test \"test/**/*.test.mjs\"",
     "check": "pnpm typecheck && pnpm build && pnpm test",
     "build:check": "node scripts/build.mjs && git diff --exit-code -- lib"
   },
