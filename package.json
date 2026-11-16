@@ -1,8 +1,8 @@
 {
   "name": "dsh-proxy-manager",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
-  "description": "Set, inspect and clear the proxy configuration of common developer tools (git, npm, dsh, docker, ...) from one DSH settings page.",
+  "description": "Manage proxy settings in DeepSeek Harness. A single settings page sets, inspects and clears the proxy configuration of the developer tools.",
   "license": "MIT",
   "author": "coldgust",
   "repository": {

@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Proxy manager",
-    "description": "Sets, inspects and clears the proxy configuration of 13 developer tools — Git, npm, pnpm, Yarn, Cargo, pip, Maven, Gradle, DeepSeek Harness, Docker, the shell environment, curl and wget — from Settings → Proxy. One switch per tool, Enable/Clear for all, use the system proxy, and open any configuration file; you can add your own tools from the same page. Running programs keep the proxy they read at start-up, so restart them after a change."
+    "description": "Manage proxy settings in DeepSeek Harness. A single settings page sets, inspects and clears the proxy configuration of the developer tools."
   }
 }

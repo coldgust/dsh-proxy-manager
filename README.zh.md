@@ -18,12 +18,12 @@
 
 ## 安装
 
-仓库已包含构建产物 `lib/`，直接使用无需自行构建。
-
-1. 在 **插件** 页点 **添加插件**，选择本仓库目录（`dsh-proxy-manager`），会以本地链接的方式装进当前 profile。
-2. 确认 `Proxy manager` 一行处于启用状态。
-3. **重启一次 DeepSeek Harness** —— Host 模块与浏览器 bundle 需要新进程才加载；之后改代码只需在插件行切一次开关。
+1. 在 **插件** 页点 **添加插件**，输入 `dsh-proxy-manager` 后按 **安装**；也可以在终端执行 `dsh plugin --profile <profile> add dsh-proxy-manager`（`<profile>` 为你启动的 profile，例如 `web`）。
+2. 选择 **立即启用**，或在 `Proxy manager` 一行打开开关。
+3. **重启一次 DeepSeek Harness** —— Host 模块与浏览器 bundle 需要新进程才加载；之后在插件行切一次开关即可重新加载插件。
 4. 打开 **设置 → 代理**。
+
+升级时重新安装即可：卸载该行后再次添加 `dsh-proxy-manager`（`dsh plugin --profile <profile> add dsh-proxy-manager@latest`）。
 
 ## 支持的工具
 

@@ -18,12 +18,12 @@ Set, inspect and clear the proxy configuration of the developer tools on this ma
 
 ## Install
 
-The repository already contains the built `lib/`, so no build step is needed to use it.
-
-1. In **Plugins**, choose **Add plugin** and pick this directory (`dsh-proxy-manager`). It is installed into the current profile as a local link.
-2. Make sure the `Proxy manager` row is enabled.
-3. **Restart DeepSeek Harness once** — the Host module and the browser bundle are loaded with a new process. After that, toggling the row is enough to pick up a rebuild.
+1. In **Plugins**, choose **Add plugin**, enter `dsh-proxy-manager`, and press **Install** — or run `dsh plugin --profile <profile> add dsh-proxy-manager`, where `<profile>` is the one you boot (for example `web`).
+2. Choose **Enable now**, or switch on the `Proxy manager` row.
+3. **Restart DeepSeek Harness once** — the Host module and the browser bundle are loaded with a new process. After that, toggling the row is enough to reload the plugin.
 4. Open **Settings → Proxy**.
+
+To upgrade, reinstall: uninstall the row and add `dsh-proxy-manager` again (`dsh plugin --profile <profile> add dsh-proxy-manager@latest`).
 
 ## Supported tools
 

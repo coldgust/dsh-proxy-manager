@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "代理管理",
-    "description": "在「设置 → 代理」里管理 13 个开发工具的代理配置：Git、npm、pnpm、Yarn、Cargo、pip、Maven、Gradle、DeepSeek Harness、Docker、Shell 环境、curl、wget。支持单行开关、全部启用/取消、使用系统代理、打开配置文件，也能在同一页添加自己的工具。已经运行的程序只在启动时读取配置，修改后请重启对应工具。"
+    "description": "在 DeepSeek Harness 中管理代理设置：通过一个设置页面查看、配置与清除开发工具的代理。"
   }
 }
