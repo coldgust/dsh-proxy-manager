@@ -193,3 +193,41 @@ test('openers try the text editor before the file association', async () => {
   const withoutEditor = openerAttempts('/tmp/x.conf', 'linux', {})
   assert.deepEqual(withoutEditor.map(attempt => attempt.command), ['xdg-open', 'sensible-editor'])
 })
+
+test('a Windows host expands the tilde in the preset paths', async () => {
+  // Windows separates with `\` while the presets are written `~/.npmrc`. Testing
+  // the tilde against `path.sep` therefore left it in the path as `<home>\~\.npmrc`,
+  // so every built-in preset is resolved once with `path.sep` swapped for the
+  // separator that host uses.
+  const nodePath = (await import('node:path')).default
+  const { builtinAdapters, expandPath, resolvePathSpec } = await import('../lib/index.js')
+  const env = { ...envOf('win32', 'C:\\Users\\me'), env: { APPDATA: 'C:\\Users\\me\\AppData\\Roaming' } }
+
+  const asPosix = builtinAdapters.map(adapter => resolvePathSpec(adapter.path, env))
+  const original = nodePath.sep
+  let asWindows
+  try {
+    nodePath.sep = '\\'
+    asWindows = builtinAdapters.map(adapter => resolvePathSpec(adapter.path, env))
+  } finally {
+    nodePath.sep = original
+  }
+
+  assert.deepEqual(asWindows, asPosix, 'a preset path must not depend on the host separator')
+  for (const resolved of asPosix) assert.doesNotMatch(resolved, /~/, 'the tilde is expanded')
+  // `~` becomes the home directory itself, with either separator in the spec.
+  for (const spec of ['~', '~/.npmrc', '~\\.npmrc', '~/_curlrc']) {
+    const expanded = expandPath(spec, env)
+    assert.doesNotMatch(expanded, /~/, `${spec} loses its tilde`)
+    assert.ok(expanded.startsWith('C:\\Users\\me'), `${spec} expands against the home directory`)
+  }
+})
+
+test('displayPath abbreviates a path whose root uses the other separator', async () => {
+  const { displayPath } = await import('../lib/index.js')
+  const env = { ...envOf('win32', 'C:\\Users\\me'), dshHome: 'C:/Users/me/.dsh' }
+  assert.equal(displayPath('C:\\Users\\me\\.dsh\\proxy-manager\\state.json', env), '$DSH_HOME\\proxy-manager\\state.json')
+  assert.equal(displayPath('C:/Users/me/.dsh', env), '$DSH_HOME')
+  assert.equal(displayPath('C:\\Users\\me\\.npmrc', env), '~\\.npmrc')
+  assert.equal(displayPath('C:\\elsewhere\\.npmrc', env), 'C:\\elsewhere\\.npmrc')
+})

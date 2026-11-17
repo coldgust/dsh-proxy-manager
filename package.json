@@ -1,6 +1,6 @@
 {
   "name": "dsh-proxy-manager",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "Manage proxy settings in DeepSeek Harness. A single settings page sets, inspects and clears the proxy configuration of the developer tools.",
   "license": "MIT",

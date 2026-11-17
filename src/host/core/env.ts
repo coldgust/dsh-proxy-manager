@@ -35,20 +35,51 @@ export function currentEnv(
 }
 
 /**
+ * Put a path into one separator form for comparison.
+ * @param value - path written with either separator, or both.
+ * @returns the same characters with `/` as the separator throughout.
+ */
+function unifiedSlashes(value: string): string {
+  return value.replace(/\\/g, '/')
+}
+
+/**
  * Expand `~`, `$HOME` and `$DSH_HOME` in one configured path.
  * @param raw - path as an adapter declares it.
  * @param env - environment to expand against.
  * @returns absolute normalized path.
  */
 export function expandPath(raw: string, env: Env): string {
-  let value = raw.trim().replace(/\\/g, path.sep)
-  if (value === '~') value = env.home
-  else if (value.startsWith(`~${path.sep}`)) value = path.join(env.home, value.slice(2))
+  // Adapters are written `~/.npmrc`, but a Windows host expands against `\`:
+  // testing the tilde against `path.sep` left it in place and produced
+  // `<home>\~\.npmrc`, so the separators are unified before the tilde test.
+  const unified = unifiedSlashes(raw.trim())
+  let value = unified === '~'
+    ? env.home
+    : unified.startsWith('~/') ? path.join(env.home, unified.slice(2)) : unified
   value = value.replace(/\$\{DSH_HOME\}|\$DSH_HOME\b/g, env.dshHome)
   value = value.replace(/\$\{HOME\}|\$HOME\b/g, env.home)
   // Windows adapters may declare %APPDATA%-style paths.
   value = value.replace(/%([A-Za-z_][A-Za-z0-9_]*)%/g, (match, name: string) => env.env[name] ?? match)
   return path.isAbsolute(value) ? path.normalize(value) : path.join(env.home, value)
+}
+
+/**
+ * Replace one root prefix with a label.
+ * @param absolute - absolute path.
+ * @param root - directory the path may lie below.
+ * @param label - text to stand in for the root.
+ * @returns the shortened path, or undefined when `absolute` is not below `root`.
+ */
+function shorten(absolute: string, root: string, label: string): string | undefined {
+  // Both sides are compared in one separator form: a root that came from a
+  // variable may use `/` while the host wrote `\`, or the other way round.
+  const prefix = unifiedSlashes(root).replace(/\/+$/, '')
+  if (prefix === '') return undefined
+  const target = unifiedSlashes(absolute)
+  if (target === prefix) return label
+  if (!target.startsWith(`${prefix}/`)) return undefined
+  return `${label}${absolute.slice(prefix.length)}`
 }
 
 /**
@@ -59,13 +90,7 @@ export function expandPath(raw: string, env: Env): string {
  */
 export function displayPath(absolute: string, env: Env): string {
   // The harness home usually sits inside the user home, so it is checked first.
-  if (absolute === env.dshHome) return '$DSH_HOME'
-  if (absolute.startsWith(`${env.dshHome}${path.sep}`)) {
-    return `$DSH_HOME${absolute.slice(env.dshHome.length)}`
-  }
-  if (absolute === env.home) return '~'
-  if (absolute.startsWith(`${env.home}${path.sep}`)) return `~${absolute.slice(env.home.length)}`
-  return absolute
+  return shorten(absolute, env.dshHome, '$DSH_HOME') ?? shorten(absolute, env.home, '~') ?? absolute
 }
 
 /**
