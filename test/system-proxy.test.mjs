@@ -226,8 +226,24 @@ test('a Windows host expands the tilde in the preset paths', async () => {
 test('displayPath abbreviates a path whose root uses the other separator', async () => {
   const { displayPath } = await import('../lib/index.js')
   const env = { ...envOf('win32', 'C:\\Users\\me'), dshHome: 'C:/Users/me/.dsh' }
-  assert.equal(displayPath('C:\\Users\\me\\.dsh\\proxy-manager\\state.json', env), '$DSH_HOME\\proxy-manager\\state.json')
-  assert.equal(displayPath('C:/Users/me/.dsh', env), '$DSH_HOME')
-  assert.equal(displayPath('C:\\Users\\me\\.npmrc', env), '~\\.npmrc')
+  assert.equal(displayPath('C:\\Users\\me\\.dsh\\proxy-manager\\state.json', env), '%DSH_HOME%\\proxy-manager\\state.json')
+  assert.equal(displayPath('C:/Users/me/.dsh', env), '%DSH_HOME%')
+  assert.equal(displayPath('C:\\Users\\me\\.npmrc', env), '%USERPROFILE%\\.npmrc')
   assert.equal(displayPath('C:\\elsewhere\\.npmrc', env), 'C:\\elsewhere\\.npmrc')
+})
+
+test('displayPath abbreviates with the placeholder the platform understands', async () => {
+  const { displayPath } = await import('../lib/index.js')
+  const windows = { ...envOf('win32', 'C:\\Users\\me'), dshHome: 'C:\\Users\\me\\.dsh' }
+  const mac = { ...envOf('darwin', '/Users/me'), dshHome: '/Users/me/.dsh' }
+
+  // Windows hides the home behind the variable its own shells expand.
+  assert.equal(displayPath('C:\\Users\\me\\.npmrc', windows), '%USERPROFILE%\\.npmrc')
+  assert.equal(displayPath('C:\\Users\\me\\.dsh\\.env', windows), '%DSH_HOME%\\.env')
+  assert.equal(displayPath('C:\\Users\\me', windows), '%USERPROFILE%')
+
+  // Everywhere else keeps the POSIX shorthand.
+  assert.equal(displayPath('/Users/me/.npmrc', mac), '~/.npmrc')
+  assert.equal(displayPath('/Users/me/.dsh/.env', mac), '$DSH_HOME/.env')
+  assert.equal(displayPath('/Users/me', mac), '~')
 })

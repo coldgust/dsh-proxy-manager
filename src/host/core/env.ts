@@ -83,14 +83,30 @@ function shorten(absolute: string, root: string, label: string): string | undefi
 }
 
 /**
+ * The placeholder each root gets in a displayed path.
+ * @param env - environment deciding the platform.
+ * @returns labels for the user home and the harness home.
+ */
+function rootLabels(env: Env): { home: string, dshHome: string } {
+  // Windows users read `%USERPROFILE%` in their own shells; `~` there looks like
+  // a POSIX leftover and invites copying a path that `cmd` will not expand.
+  return env.platform === 'win32'
+    ? { home: '%USERPROFILE%', dshHome: '%DSH_HOME%' }
+    : { home: '~', dshHome: '$DSH_HOME' }
+}
+
+/**
  * Abbreviate a path for display without losing information.
  * @param absolute - absolute path.
  * @param env - environment whose home is abbreviated.
- * @returns the path with `~` or `$DSH_HOME` substituted when it lies below either.
+ * @returns the path with its root replaced by the platform's placeholder.
  */
 export function displayPath(absolute: string, env: Env): string {
+  const labels = rootLabels(env)
   // The harness home usually sits inside the user home, so it is checked first.
-  return shorten(absolute, env.dshHome, '$DSH_HOME') ?? shorten(absolute, env.home, '~') ?? absolute
+  return shorten(absolute, env.dshHome, labels.dshHome)
+    ?? shorten(absolute, env.home, labels.home)
+    ?? absolute
 }
 
 /**
